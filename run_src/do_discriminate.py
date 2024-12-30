@@ -316,7 +316,7 @@ class MajorityVoteDiscriminator(Discriminator):
         super().__init__(args, evaluator)
         self.tokenizer, self.model = None, None
         if self.args.api == "vllm":
-            self.tokenizer, self.model = load_vLLM_model(args.model_ckpt, args.seed, max_num_seqs=args.max_num_seqs)
+            self.tokenizer, self.model = load_vLLM_model(args.model_ckpt, args.seed, max_num_seqs=args.max_num_seqs,tensor_parallel_size=args.tensor_parallel_size)
 
     def select(self, problem: str, candidates: list[Candidate], gt_answer: str = None, aux={}) -> Candidate:
         print(f"==> Ground truth answer: {gt_answer}")
@@ -347,7 +347,8 @@ def main():
     parser.add_argument("--threshold", type=float, default=0.999)
 
     # vLLM
-    parser.add_argument("--max_num_seqs", type=int, default=256)
+    parser.add_argument("--max_num_seqs", type=int, default=128)
+    parser.add_argument("--tensor_parallel_size", type=int, default=1, help="Number of GPUs for tensor parallelism")
 
     # For multi-choice
     parser.add_argument("--multi_choice_prompt_type", type=str, default=None, choices=["fewshot", "instruct"])
