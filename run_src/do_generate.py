@@ -23,9 +23,9 @@ def main(args):
     test_file = os.path.join(args.data_root, args.dataset_name, args.test_json_filename + ".json")
     assert os.path.exists(test_file), f"Test file {test_file} does not exist."
     data_item_list = read_json(test_file)
-
+    
     evaluator = eval(f"{args.dataset_name}Evaluator()")
-
+    
     tokenizer, model = None, None
     if args.api == "huggingface":
         from models.HuggingFace_API import load_HF_model
@@ -40,12 +40,12 @@ def main(args):
 
         tokenizer, model = load_OpenAI_model(args.model_ckpt)
     generator = Generator(args, tokenizer, model, evaluator)
-
+    
     total_correct = 0
     total_correct_limit = 0
     num_tested = 0
     start_time = time.time()
-
+    
     for i, data_item in enumerate(
         (pbar := tqdm(data_item_list, disable=args.local_rank > 0 or args.verbose, position=1))
     ):
@@ -180,6 +180,6 @@ if __name__ == "__main__":
             args.decompose_prompt_rephrased_path = os.path.join(prompts_dir, "decompose", "decompose_prompt.txt")
 
     args = post_process_args(args)
-    print(args)
+    #print(args)
     save_args(args)
     main(args)

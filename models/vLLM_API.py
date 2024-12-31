@@ -6,7 +6,7 @@ import numpy as np
 import math
 
 
-def load_vLLM_model(model_ckpt, seed, tensor_parallel_size=1, half_precision=False, max_num_seqs=256):
+def load_vLLM_model(model_ckpt, seed, tensor_parallel_size=1, half_precision=False, max_num_seqs=128):
     tokenizer = AutoTokenizer.from_pretrained(model_ckpt)
 
     if half_precision:
@@ -18,6 +18,7 @@ def load_vLLM_model(model_ckpt, seed, tensor_parallel_size=1, half_precision=Fal
             trust_remote_code=True,
             max_num_seqs=max_num_seqs,
             swap_space=16,
+            enforce_eager=True
         )
     else:
         llm = LLM(
@@ -27,6 +28,8 @@ def load_vLLM_model(model_ckpt, seed, tensor_parallel_size=1, half_precision=Fal
             trust_remote_code=True,
             max_num_seqs=max_num_seqs,
             swap_space=16,
+            enforce_eager=True
+
         )
 
     return tokenizer, llm
@@ -58,11 +61,12 @@ def generate_with_vLLM_model(
     output = model.generate(input, sampling_params, use_tqdm=False)
     return output
 
-
+#debugging code
 if __name__ == "__main__":
-    model_ckpt = "mistralai/Mistral-7B-v0.1"
-    tokenizer, model = load_vLLM_model(model_ckpt, seed=42, tensor_parallel_size=1, half_precision=False)
+    model_ckpt = "meta-llama/Llama-3.1-8B"
+    tokenizer, model = load_vLLM_model(model_ckpt, seed=42, tensor_parallel_size=4, half_precision=False,max_num_seqs=256)
     input = "What is the meaning of life?"
     output = generate_with_vLLM_model(model, input)
-    breakpoint()
+    #for debugging only
+    #breakpoint()
     print(output[0].outputs[0].text)

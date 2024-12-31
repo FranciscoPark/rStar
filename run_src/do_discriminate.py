@@ -333,7 +333,6 @@ class MajorityVoteDiscriminator(Discriminator):
         print(f"==> RC-filtered answers: {[c.final_answer for c in filtered_candidates]}")
         return self._find_winner_filtered(prefiltered_candidates, filtered_candidates, gt_answer)
 
-
 def main():
     parser = ArgumentParser()
     parser.add_argument("--note", type=str, default="default")
@@ -347,7 +346,7 @@ def main():
     parser.add_argument("--threshold", type=float, default=0.999)
 
     # vLLM
-    parser.add_argument("--max_num_seqs", type=int, default=128)
+    parser.add_argument("--max_num_seqs", type=int, default=256)
     parser.add_argument("--tensor_parallel_size", type=int, default=1, help="Number of GPUs for tensor parallelism")
 
     # For multi-choice

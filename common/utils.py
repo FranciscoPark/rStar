@@ -24,18 +24,35 @@ def fix_seeds(seed):
     torch.backends.cudnn.benchmark = False
 
 
+# def setup_model_parallel() -> Tuple[int, int]:
+#     from fairscale.nn.model_parallel.initialize import initialize_model_parallel
+
+#     local_rank = int(os.environ.get("LOCAL_RANK", -1))
+#     world_size = int(os.environ.get("WORLD_SIZE", -1))
+
+#     torch.distributed.init_process_group("nccl")
+#     initialize_model_parallel(world_size)
+#     torch.cuda.set_device(local_rank)
+
+#     #print(local_rank,world_size)
+#     return local_rank, world_size
 def setup_model_parallel() -> Tuple[int, int]:
-    from fairscale.nn.model_parallel.initialize import initialize_model_parallel
+    """Minimal 'setup_model_parallel' that returns local rank and world size
+    without calling init_process_group, so we don't conflict with vLLM's
+    internal communication."""
+    local_rank = int(os.environ.get("LOCAL_RANK", 0))
+    world_size = int(os.environ.get("WORLD_SIZE", 1))
+    
+    # If you just need rank/world-size for logging or partitioning logic:
+    #   - DO NOT call `torch.distributed.init_process_group("nccl")`
+    #   - DO NOT call `initialize_model_parallel(world_size)`
+    # Because that would set up another NCCL group and conflict with vLLM.
 
-    local_rank = int(os.environ.get("LOCAL_RANK", -1))
-    world_size = int(os.environ.get("WORLD_SIZE", -1))
-
-    torch.distributed.init_process_group("nccl")
-    initialize_model_parallel(world_size)
-    torch.cuda.set_device(local_rank)
+    # If you still want each process to run on a separate GPU,
+    # you could optionally do:
+    # torch.cuda.set_device(local_rank)
 
     return local_rank, world_size
-
 
 def read_json(file_path):
     assert str(file_path).endswith(".json")
